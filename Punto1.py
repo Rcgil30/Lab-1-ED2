@@ -154,14 +154,6 @@ class Tree:
         else:
             return rheight+1
 
-    def preOrder(self, root):
-        if not root:
-            return
- 
-        print("{0} ".format(root.data), end="")
-        self.preOrder(root.left)
-        self.preOrder(root.right)
-
 tree = Tree()
 tree.root = tree.insertarNodo(tree.root, 10)
 tree.root = tree.insertarNodo(tree.root, 20)
