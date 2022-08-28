@@ -44,7 +44,7 @@ class Tree():
         else: 
             return self.BuscarNodo(root.left, data)
 
-    #Insertar un nodo en un árbol
+    #Función privada que inserta un nodo en un árbol
     def _insert_(self, root: Node, data):
         #Si la raíz es nula entonces me retorna el dato del nodo
         if root is None:  
@@ -95,18 +95,6 @@ class Tree():
                 root = None
                 return temp
 
-
-    def CalculateLevel(self):
-        node = self.root
-        s = [node]
-        while len(s) > 0:
-            node = s.pop(0)
-            if node.left is not None:
-                s.append(node.left)
-                node.left.level = node.level + 1
-            if node.right is not None:
-                pass
-
     def CalculateLevel(self): #Para calcular el nivel del nodo en el que nos encontramos, se hace un recorrido por nivel
         node = self.root 
         s = [node] #Creamos una lista q tiene como objeto el nuestro nodo
@@ -125,44 +113,46 @@ class Tree():
             return 0
         node = root 
         s = [node] #Creamos una lista q tiene como objeto el nuestro nodo
-        while len(s) > 0: 
-            node = s.pop(0)
-            if node.left is not None:
-                s.append(node.left)
-            if node.right is not None:
-                s.append(node.right)
-        return node.level
+        while len(s) > 0:  #mientras que la lista no esté vacía 
+            node = s.pop(0) #sacamos el nodo de la lista
+            if node.left is not None: #Si tiene hijo a la izquierda
+                s.append(node.left)  #ingresamos cada nodo
+            if node.right is not None: #si tiene hijos a la derecha
+                s.append(node.right) #ingresamos cada nodo
+        return node.level #obtenemos el nivel del nodo
 
-    def Balance(self, root: Node):
-        rheight = self.BuscarMax(root.right) 
-        lheight = self.BuscarMax(root.left) 
-        if (rheight != 0):
+    #con esta función obetenemos el balance de cada nodo
+    def Balance(self, root: Node): 
+        rheight = self.BuscarMax(root.right) #buscamos balance del hijo derecho
+        lheight = self.BuscarMax(root.left)  #buscamos balance del hijo izquierdo
+        if (rheight != 0): 
             rheight -= root.level
         if (lheight != 0):
             lheight -= root.level
         return rheight - lheight
 
+    #función pública que escribe de manera mas sencilla, insertar nodos
     def insert(self, data): 
-        if self.root is None:
+        if self.root is None: #si el árbol es vacío
             self.root = Node(data)
-        else:
+        else: #sino se realiza todo el proceso de insertar
             self.root = self._insert_(self.root, data)
     
     def RotacionIzquierda(self, root: Node): #Para balancearlo 
-        child = root.left
-        root.left = child.right
-        child.right = root
-        self.CalculateLevel()
-        return child
+        child = root.left #hijo recibe nodo izquierdo
+        root.left = child.right #nodo izquierdo recibe hijo derecho
+        child.right = root #hijo derecho recibe nodo
+        self.CalculateLevel() #calculamos el nivel de cada uno de los nodos
+        return child 
 
-    def RotacionDerecha(self, root: Node):
+    def RotacionDerecha(self, root: Node): #Calcular la rotacon derecha
         child = root.right
         root.right = child.left
         child.left = root
         self.CalculateLevel()
         return child
 
-    def preorder(self, root: Node):
+    def preorder(self, root: Node): #Calcular la rotación izquierda
         if root is not None:
             print(root.data)
             self.preorder(root.left)
@@ -203,6 +193,8 @@ class Tree():
             return abuelo.left
         return abuelo.right
 
+def main():
+    pass
 
 #Objeto de la clase tree
 tree = Tree()
@@ -214,13 +206,20 @@ tree.insert(40)
 tree.insert(50)
 tree.insert(25)
 tree.preorder(tree.root) 
+'''
+nodo = tk.Label(ventana, text=tree.insert(10),
+                                 font=Fuente_principal, disabledforeground=None, bg="#FFFFFF")
+# Ubicación (x,y) del label
+nodo.place(x=470, y=50) 
+'''
 
-
-# El mainloop lleva el registro de todo lo que está sucediendo en la ventana:
-ventana.mainloop()
 
 abuelo = tree.EncontrarAbuelo(tree.root, 10)
 tio = tree.EncontrarTio(10)
 print(f"{abuelo} y {abuelo.right}")
 nodo = tree.BuscarNodo(tree.root, 60)
 print(nodo)
+
+
+# El mainloop lleva el registro de todo lo que está sucediendo en la ventana:
+ventana.mainloop()
