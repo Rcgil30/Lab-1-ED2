@@ -5,10 +5,23 @@ class Node:
         self.right: Node = None
         self.level = 0
 
+    def __repr__(self) -> str:
+        return f"data: {self.data}"
+
 class Tree():
     def __init__(self) -> None:
         self.root: Node = None
     
+    def BuscarNodo(self, root: Node, data):
+        if root is None:
+            return None
+        if root.data == data:
+            return root
+        if data > root.data:
+            return self.BuscarNodo(root.right, data)
+        else: 
+            return self.BuscarNodo(root.left, data)
+
     def _insert_(self, root: Node, data):
         if root is None:
             return Node(data)
@@ -32,6 +45,28 @@ class Tree():
             return self.RotacionDerecha(root)
 
         return root
+
+    def delete(self, data):
+        if self.BuscarNodo(data) is None:
+            print("Nodo no encontrado")
+        else:
+            self._delete_()
+
+    def _delete_(self, root: Node, data):
+        if data < root.data:
+            root.left = self._delete_(root.left, data)
+        elif data > root.data:
+            root.right = self._delete_(root.right, data)
+        else:
+            if root.left is None:
+                temp = root.right
+                root = None
+                return temp
+            elif root.right is None:
+                temp = root.left
+                root = None
+                return temp
+
 
     def CalculateLevel(self):
         node = self.root
@@ -97,6 +132,38 @@ class Tree():
         temp = self.BuscarMax(root)
         return temp - root.level
 
+    def EncontrarAbuelo(self, root:Node, data):
+        if root is None:
+            return None
+        if root.left is not None:
+            if root.left.left is not None:
+                if root.left.left.data == data:
+                    return root
+            if root.left.right is not None:
+                if root.left.right.data == data:
+                    return root
+        
+        if root.right is not None:
+            if root.right.left is not None:
+                if root.right.left.data == data:
+                    return root
+            if root.right.right is not None:
+                if root.right.right.data == data:
+                    return root
+        if(data > root.data):
+            self.EncontrarAbuelo(root.right, data)
+        else:
+            self.EncontrarAbuelo(root.left, data)
+
+    def EncontrarTio(self, data):
+        abuelo = self.EncontrarAbuelo(self.root, data)
+        if abuelo is None:
+            return None
+        if data > abuelo.data:
+            return abuelo.left
+        return abuelo.right
+
+
 tree = Tree()
 tree.insert(10)
 tree.insert(20)
@@ -106,9 +173,8 @@ tree.insert(50)
 tree.insert(25)
 tree.preorder(tree.root)
 
-
-"""
-tree.preorder(tree.root.left.left.data)
-tree.insert(2)
-tree.preorder(tree.root)
-"""
+abuelo = tree.EncontrarAbuelo(tree.root, 10)
+tio = tree.EncontrarTio(10)
+print(f"{abuelo} y {abuelo.right}")
+nodo = tree.BuscarNodo(tree.root, 60)
+print(nodo)
