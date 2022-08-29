@@ -28,13 +28,13 @@ class Node:
     def __repr__(self) -> str:
         return f"data: {self.data}"
 
-
 #En esta clase se encuentra todo lo relacionado a las forma de recorrido del nodo
 class Tree():
     def __init__(self) -> None:
         self.root: Node = None
     
     def BuscarNodo(self, root: Node, data):
+        """Función para buscar un nodo según su dato y retornar el nodo si lo encuentra"""
         if root is None:
             return None
         if root.data == data:
@@ -43,6 +43,15 @@ class Tree():
             return self.BuscarNodo(root.right, data)
         else: 
             return self.BuscarNodo(root.left, data)
+
+    def insert(self, data):
+        """Función para insertar un nodo"""
+        if self.root is None:
+            self.root = Node(data)
+        elif self.BuscarNodo(self.root, data) is not None:
+            print("Nodo ya se encuentra en el árbol")
+        else:
+            self.root = self._insert_(self.root, data)
 
     #Insertar un nodo en un árbol
     def _insert_(self, root: Node, data):
@@ -75,13 +84,15 @@ class Tree():
         return root
 
     def delete(self, data):
-        if self.BuscarNodo(data) is None:
+        if self.BuscarNodo(self.root, data) is None:
             print("Nodo no encontrado")
         else:
-            self._delete_()
+            self.root = self._delete_(self.root, data)
 
     def _delete_(self, root: Node, data):
-        if data < root.data:
+        if root is None:
+            return root
+        elif data < root.data:
             root.left = self._delete_(root.left, data)
         elif data > root.data:
             root.right = self._delete_(root.right, data)
@@ -94,20 +105,39 @@ class Tree():
                 temp = root.left
                 root = None
                 return temp
+            temp = self.getMinValueNode(root.right)
+            root.data = temp.data
+            root.right = self._delete_(root.right, temp.data)
+        
+        if root is None: 
+            return root
+        self.CalculateLevel()
+        balance = self.Balance(root)
+        if balance > 1 and self.Balance(root.left) >= 0:
+            return self.RotacionDerecha(root)
+ 
+        if balance < -1 and self.Balance(root.right) <= 0:
+            return self.RotacionIzquierda(root)
+ 
+        if balance > 1 and self.Balance(root.left) < 0:
+            root.left = self.RotacionIzquierda(root.left)
+            return self.RotacionDerecha(root)
+ 
+        if balance < -1 and self.Balance(root.right) > 0:
+            root.right = self.RotacionDerecha(root.right)
+            return self.RotacionIzquierda(root)
 
+        return root
 
-    def CalculateLevel(self):
-        node = self.root
-        s = [node]
-        while len(s) > 0:
-            node = s.pop(0)
-            if node.left is not None:
-                s.append(node.left)
-                node.left.level = node.level + 1
-            if node.right is not None:
-                pass
+    def getMinValueNode(self, root: Node) -> Node:
+        if root is None or root.left is None:
+            return root
+        return self.getMinValueNode(root.left)
+
 
     def CalculateLevel(self): #Para calcular el nivel del nodo en el que nos encontramos, se hace un recorrido por nivel
+        if self.root.level != 0:
+            self.root.level = 0
         node = self.root 
         s = [node] #Creamos una lista q tiene como objeto el nuestro nodo
         while len(s) > 0: #mientras que el tamaño de nuestra lista sea mayor a 0
@@ -134,6 +164,8 @@ class Tree():
         return node.level
 
     def Balance(self, root: Node):
+        if root is None:
+            return 0
         rheight = self.BuscarMax(root.right) 
         lheight = self.BuscarMax(root.left) 
         if (rheight != 0):
@@ -141,12 +173,6 @@ class Tree():
         if (lheight != 0):
             lheight -= root.level
         return rheight - lheight
-
-    def insert(self, data): 
-        if self.root is None:
-            self.root = Node(data)
-        else:
-            self.root = self._insert_(self.root, data)
     
     def RotacionIzquierda(self, root: Node): #Para balancearlo 
         child = root.left
@@ -164,7 +190,7 @@ class Tree():
 
     def preorder(self, root: Node):
         if root is not None:
-            print(root.data)
+            print(root.data, end=" ")
             self.preorder(root.left)
             self.preorder(root.right)
 
@@ -173,7 +199,7 @@ class Tree():
         return temp - root.level
 
     def EncontrarAbuelo(self, root:Node, data):
-        if root is None:
+        if root is None or root.data == data:
             return None
         if root.left is not None:
             if root.left.left is not None:
@@ -202,7 +228,21 @@ class Tree():
         if data > abuelo.data:
             return abuelo.left
         return abuelo.right
+    
+    def LevelTraversal(self):
+        self.CalculateLevel()
+        h = self.AlturaNodo(self.root)
+        for i in range(1, h+2):
+            self.CurrentLevel(self.root, i)
 
+    def CurrentLevel(self, root: Node, level):
+        if root is None:
+            return
+        if level == 1:
+            print(root.data, end=" ")
+        elif level > 1:
+            self.CurrentLevel(root.left , level-1)
+            self.CurrentLevel(root.right , level-1)
 
 #Objeto de la clase tree
 tree = Tree()
@@ -214,13 +254,23 @@ tree.insert(40)
 tree.insert(50)
 tree.insert(25)
 tree.preorder(tree.root) 
-
+print()
+tree.LevelTraversal()
 
 # El mainloop lleva el registro de todo lo que está sucediendo en la ventana:
 ventana.mainloop()
 
 abuelo = tree.EncontrarAbuelo(tree.root, 10)
-tio = tree.EncontrarTio(10)
-print(f"{abuelo} y {abuelo.right}")
-nodo = tree.BuscarNodo(tree.root, 60)
-print(nodo)
+tio = tree.EncontrarTio(50)
+#print(f"{abuelo} y {tio}")
+nodo = tree.BuscarNodo(tree.root, 40)
+#print(nodo)
+
+tree2 = Tree()
+nums = [9, 5, 10, 0, 6, 11, -1, 1, 2]
+for num in nums:
+    tree2.insert(num)
+#tree2.preorder(tree2.root)
+tree2.delete(10)
+#print()
+#tree2.preorder(tree2.root)
