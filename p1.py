@@ -19,7 +19,7 @@ Fuente_principal = tkFont.Font(family="Lucida Bright", size=11)
 # Tipo de letra de la disponibilidad en los label
 #Creamos una clase nodo, nuestro constructor
 class Node:
-    def __init__(self, data) -> None:
+    def __init__(self, data: int) -> None:
         self.data = data #Dato del nodo
         self.left: Node = None  #Enlace izquierdo del nodo
         self.right: Node = None #Enlace derecho del nodo
@@ -33,7 +33,7 @@ class Tree():
     def __init__(self) -> None:
         self.root: Node = None
     
-    def BuscarNodo(self, root: Node, data):
+    def BuscarNodo(self, root: Node, data: int):
         """Función para buscar un nodo según su dato y retornar el nodo si lo encuentra"""
         if root is None:
             return None
@@ -44,18 +44,19 @@ class Tree():
         else: 
             return self.BuscarNodo(root.left, data)
 
-    def insert(self, data):
+    def insert(self, data: int):
         """Función para insertar un nodo"""
-        if self.root is None:
+        if self.root is None: #Si no hay raíz, se crea un nuevo nodo y se le asigna
             self.root = Node(data)
-        elif self.BuscarNodo(self.root, data) is not None:
+        elif self.BuscarNodo(self.root, data) is not None: #Validación de que el nodo no exista previamente
             print("Nodo ya se encuentra en el árbol")
         else:
-            self.root = self._insert_(self.root, data)
+            self.root = self._insert_(self.root, data) #Si ningúno de los otros casos se da, llamamos esta función para 
+                                                       #insertar un nuevo nodo y rebalancear según sea necesario
 
     #Insertar un nodo en un árbol
     #Función privada que inserta un nodo en un árbol
-    def _insert_(self, root: Node, data):
+    def _insert_(self, root: Node, data: int):
         #Si la raíz es nula entonces me retorna el dato del nodo
         if root is None:  
             return Node(data) 
@@ -84,20 +85,23 @@ class Tree():
 
         return root
 
-    def delete(self, data):
+    def delete(self, data: int):
+        """Función para borrar un nodo"""
         if self.BuscarNodo(self.root, data) is None:
             print("Nodo no encontrado")
         else:
             self.root = self._delete_(self.root, data)
 
-    def _delete_(self, root: Node, data):
-        if root is None:
+    def _delete_(self, root: Node, data: int):
+        if root is None: #Validación de que no llegemos a un nodo nulo y que cause error
             return root
+        #Nos movemos en el árbol de forma recursiva aprovechando las propiedades de los ABB
         elif data < root.data:
             root.left = self._delete_(root.left, data)
         elif data > root.data:
             root.right = self._delete_(root.right, data)
-        else:
+        else: #Cuando encuentra el dato a borrar
+            #Si alguno de los hijos es nulo, el otro intercambia lugares con el padre y se borra el padre
             if root.left is None:
                 temp = root.right
                 root = None
@@ -106,31 +110,43 @@ class Tree():
                 temp = root.left
                 root = None
                 return temp
+            #Si ambos hijos existen, se cambia el dato a borrar con el mínimo valor en el subárbol derecho,
+            #para luego borrar nuevamente
             temp = self.getMinValueNode(root.right)
             root.data = temp.data
+            # Después de este llamado, se debería llegar a alguno de los casos que se presentan en los condicionales
+            #previamente explicados, a partir de lo cual se realizan las validaciones del balance
             root.right = self._delete_(root.right, temp.data)
-        
+            
+        #Si el nodo es nulo volvemos al paso anterior en espera
         if root is None: 
             return root
-        self.CalculateLevel()
+        #Recalculamos el nivel de cada nodo y sacamos el balance de la raíz
+        self.CalculateLevel() 
         balance = self.Balance(root)
-        if balance > 1 and self.Balance(root.left) >= 0:
-            return self.RotacionDerecha(root)
- 
-        if balance < -1 and self.Balance(root.right) <= 0:
+        #Si hay un desbalance a la izquierda y el nodo izquierdo tiene un balance distino de 1
+        if balance < -1 and self.Balance(root.left) <= 0:
+            #Rotación simple izquierda
             return self.RotacionIzquierda(root)
- 
-        if balance > 1 and self.Balance(root.left) < 0:
-            root.left = self.RotacionIzquierda(root.left)
+        #Si hay un desbalance a la derecha y el nodo derecho tiene un balance distino de -1
+        if balance > 1 and self.Balance(root.right) >= 0:
+            #Rotación simple derecha
             return self.RotacionDerecha(root)
- 
-        if balance < -1 and self.Balance(root.right) > 0:
-            root.right = self.RotacionDerecha(root.right)
+        #Si hay un desbalance a la izquierda y el nodo izquierdo tiene un balance igual a 1
+        if balance < -1 and self.Balance(root.left) > 0:
+            #Rotación doble izquierda
+            root.left = self.RotacionDerecha(root.left)
             return self.RotacionIzquierda(root)
-
+        #Si hay un desbalance a la derecha y el nodo derecho tiene un balance igual a -1
+        if balance > 1 and self.Balance(root.right) < 0:
+            #Rotación doble derecha
+            root.right = self.RotacionIzquierda(root.left)
+            return self.RotacionDerecha(root)
+        # Si el nodo no tiene desbalances, se retorna para seguir con los nodos antecesores
         return root
 
     def getMinValueNode(self, root: Node) -> Node:
+        """Función que devuelve el nodo de menor valor a partir de cualquier nodo"""
         if root is None or root.left is None:
             return root
         return self.getMinValueNode(root.left)
@@ -138,6 +154,7 @@ class Tree():
 
 
     def CalculateLevel(self): #Para calcular el nivel del nodo en el que nos encontramos, se hace un recorrido por nivel
+        """Función que calcula el nivel de todos los nodos"""
         if self.root.level != 0:
             self.root.level = 0
         node = self.root 
@@ -153,6 +170,7 @@ class Tree():
 
     #Esta función me retorna el nivel del nodo que se encuentras mas abajo, esto se utiliza para calcular el balance
     def BuscarMax(self, root: Node):
+        """Función que encuentra el nivel más bajo en el árbol a partir de cualquier nodo"""
         if root is None: #si no hay nodo entonces el nivel es 0
             return 0
         node = root 
@@ -165,8 +183,8 @@ class Tree():
                 s.append(node.right) #ingresamos cada nodo
         return node.level #obtenemos el nivel del nodo
 
-    #con esta función obetenemos el balance de cada nodo
-    def Balance(self, root: Node): 
+    def Balance(self, root: Node):
+        """Función para obtener el balance de cada nodo""" 
         rheight = self.BuscarMax(root.right) #buscamos balance del hijo derecho
         lheight = self.BuscarMax(root.left)  #buscamos balance del hijo izquierdo
         if (rheight != 0): 
@@ -174,84 +192,85 @@ class Tree():
         if (lheight != 0):
             lheight -= root.level
         return rheight - lheight
-
-
-    #función pública que escribe de manera mas sencilla, insertar nodos
-    def insert(self, data): 
-        if self.root is None: #si el árbol es vacío
-            self.root = Node(data)
-        else: #sino se realiza todo el proceso de insertar
-            self.root = self._insert_(self.root, data)
     
-    def RotacionIzquierda(self, root: Node): #Para balancearlo 
+    def RotacionIzquierda(self, root: Node): 
+        """Rotación simple izquierda"""
         child = root.left #hijo recibe nodo izquierdo
         root.left = child.right #nodo izquierdo recibe hijo derecho
         child.right = root #hijo derecho recibe nodo
-        self.CalculateLevel() #calculamos el nivel de cada uno de los nodos
+        self.CalculateLevel() #recalculamos el nivel de cada uno de los nodos
         return child 
 
-    def RotacionDerecha(self, root: Node): #Calcular la rotacon derecha
+    def RotacionDerecha(self, root: Node): 
+        """Rotación simple derecha"""
         child = root.right
         root.right = child.left
         child.left = root
         self.CalculateLevel()
         return child
 
-    def preorder(self, root: Node): #Calcular la rotación izquierda
+    def preorder(self, root: Node): 
+        """Recorrido recursivo en order traversal"""
         if root is not None:
             print(root.data, end=" ")
             self.preorder(root.left)
             self.preorder(root.right)
 
     def AlturaNodo(self, root:Node):
+        """Función que devuelve la altura de un nodo (Entiendase como el 
+        número de aristas más larga desde el nodo hasta un nodo hoja)"""
         temp = self.BuscarMax(root)
         return temp - root.level
 
-    def EncontrarAbuelo(self, root:Node, data):
-        if root is None or root.data == data:
+    def EncontrarAbuelo(self, root:Node, data: int):
+        """Función para encontrar el abuelo de un nodo dado el dato"""
+        if root is None or root.data == data: #Si el nodo es nulo o tiene el dato a buscar, el abuelo no existe
             return None
-        if root.left is not None:
+        if root.left is not None: #Validación para no incurrir en NullPointer
             if root.left.left is not None:
-                if root.left.left.data == data:
-                    return root
+                if root.left.left.data == data: 
+                    return root #Si encontramos el dato en alguno de los nietos, devolvemos el nodo 
             if root.left.right is not None:
                 if root.left.right.data == data:
                     return root
         
-        if root.right is not None:
+        if root.right is not None: #Mismas validaciones para el subárbol derecho
             if root.right.left is not None:
                 if root.right.left.data == data:
                     return root
             if root.right.right is not None:
                 if root.right.right.data == data:
                     return root
-        if(data > root.data):
+        if(data > root.data): #Si no encontramos el nodo, nos movemos en el árbol llamando el método nuevamente
             self.EncontrarAbuelo(root.right, data)
         else:
             self.EncontrarAbuelo(root.left, data)
 
-    def EncontrarTio(self, data):
-        abuelo = self.EncontrarAbuelo(self.root, data)
-        if abuelo is None:
+    def EncontrarTio(self, data: int):
+        """Función para encontrar el abuelo de un nodo dado el dato"""
+        abuelo = self.EncontrarAbuelo(self.root, data) #Ecnontramos el abuelo del nodo
+        if abuelo is None: #Si no tiene abuelo tampoco tiene tío
             return None
-        if data > abuelo.data:
+        if data > abuelo.data: #Usando al abuelo, nos vamos al subárbol en el que no se encuentre el nodo que buscamos
             return abuelo.left
         return abuelo.right
     
     def LevelTraversal(self):
-        self.CalculateLevel()
-        h = self.AlturaNodo(self.root)
-        for i in range(1, h+2):
+        """Recorrido por nivel recursivo"""
+        self.CalculateLevel() #Recalculamos el nivel como validación de que sea correcto
+        h = self.AlturaNodo(self.root) #Calculamos la altura del árbol
+        for i in range(1, h + 2): #Hacemos recorridos del árbol h veces
             self.CurrentLevel(self.root, i)
 
     def CurrentLevel(self, root: Node, level):
+        """Imprime los nodos dependiendo del nivel"""
         if root is None:
             return
-        if level == 1:
+        if level == 1: #Cuando el nivel con el que se llama la función sea 1, se imprime el nodo
             print(root.data, end=" ")
         elif level > 1:
-            self.CurrentLevel(root.left , level-1)
-            self.CurrentLevel(root.right , level-1)
+            self.CurrentLevel(root.left , level-1) #Nos movemos en el árbol y vamos disminuyendo el nivel
+            self.CurrentLevel(root.right , level-1) #a la vez, para que cuando sea 1 se imprima
 
 def main():
     pass
@@ -286,10 +305,11 @@ tree2 = Tree()
 nums = [9, 5, 10, 0, 6, 11, -1, 1, 2]
 for num in nums:
     tree2.insert(num)
-#tree2.preorder(tree2.root)
+print()
+tree2.preorder(tree2.root)
 tree2.delete(10)
-#print()
-#tree2.preorder(tree2.root)
+print()
+tree2.preorder(tree2.root)
 tio = tree.EncontrarTio(10)
 print(f"{abuelo} y {abuelo.right}")
 nodo = tree.BuscarNodo(tree.root, 60)
