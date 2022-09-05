@@ -24,7 +24,74 @@ class tree():
             lista.append(Nodo)
         self.guardanivel (nivel, Nodo.izquierda, lista)
         self.guardanivel(nivel, Nodo.derecha, lista)
-
+    
+    def creacion ( self, muestras:list, horas:int):
+        for i in range(len(muestras)):
+            #Se toma el arbol correspondiente
+            arbol = muestras[i]
+            for j in range(horas):
+                #Para cada hora hacer las replicaciones
+                nivhora = []
+                self.guardanivel( j+1,arbol.root, nivhora)
+                for k in range(len(nivhora)):
+                    nodo = nivhora[k]
+                    if nodo.nivel == 0:
+                        #Garantizar el hijo de la izquierda
+                        nodo.izquierda = Node(nodo.nivel + 1)
+                        #infertilidad
+                        if random.uniform(0, 1) <= 0.03:
+                            nodo.izquierda.infertilidad = 1
+                        else:
+                            if random.uniform(0, 1) <= 0.01:
+                                nodo.izquierda.Fertilidad = 1
+                        #Comprobar hijo derecha
+                        if random.uniform(0, 1)<=0.8:
+                            nodo.derecha = Node(nodo.nivel +1)
+                            #Calculo de fertilidad e infertilidad
+                            if random.uniform(0, 1)<= 0.03:
+                                nodo.derecha.infertilidad = 1
+                            else:
+                                if random.uniform(0, 1)<= 0.01:
+                                    nodo.derecha.Fertilidad = 1
+                    else:
+                        if nodo.infertilidad !=1:
+                            #Hijo izquierda
+                            if nodo.Fertilidad == 1:
+                                nodo.izquierda = Node(nodo.nivel +1)
+                                #infertilidad
+                                if random.uniform(0, 1) <= 0.03:
+                                    nodo.izquierda.infertilidad = 1
+                                else:
+                                    if random.uniform(0, 1) <= 0.01:
+                                        nodo.izquierda.Fertilidad = 1
+                            else:
+                                if random.uniform(0, 1)<=0.8:
+                                    nodo.izquierda = Node(nodo.nivel +1)
+                                    #infertilidad
+                                    if random.uniform(0, 1) <= 0.03:
+                                        nodo.izquierda.infertilidad = 1
+                                    else:
+                                        if random.uniform(0, 1) <= 0.01:
+                                            nodo.izquierda.Fertilidad = 1
+                            #Hijo derecha
+                            if nodo.Fertilidad == 1:
+                                nodo.derecha = Node(nodo.nivel +1)
+                                #infertilidad
+                                if random.uniform(0, 1) <= 0.03:
+                                    nodo.derecha.infertilidad = 1
+                                else:
+                                    if random.uniform(0, 1) <= 0.01:
+                                        nodo.derecha.Fertilidad = 1
+                            else:
+                                if random.uniform(0, 1)<=0.8:
+                                    nodo.derecha = Node(nodo.nivel +1)
+                                    #infertilidad
+                                    if random.uniform(0, 1) <= 0.03:
+                                        nodo.derecha.infertilidad = 1
+                                    else:
+                                        if random.uniform(0, 1) <= 0.01:
+                                            nodo.derecha.Fertilidad = 1
+                    nivhora[k]=nodo
 
     def replicaciones (self, muestras: list):
         for i in range(len(muestras)):
