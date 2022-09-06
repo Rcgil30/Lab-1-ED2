@@ -1,22 +1,7 @@
 #GUI de python que utilizaremos para la interfaz
 import tkinter as tk
-#Esta librería nos permite cambiar el tipo de fuente en los label y botones
-import tkinter.font as tkFont
-# PARA CREAR LA INTERFAZ GRÁFICA
-# Creamos la ventana principal
-ventana = tk.Tk()
-# Tamaño de la ventana:
-Height = 918
-Width = 520
-ventana.geometry("918x520+230+100")  # para el tamaño y centrado de la interfaz
-# Título de la ventana principal
-ventana.title("Punto 1, laboratorio #1")
-# Esto sirve para que el usuario no pueda agrandar la pantalla, ya que
-# de lo contrario, se distorciona la interfaz
-ventana.resizable(width=0, height=0)
-# Creamos un Tipo de letra para colocarselo a los botones en las pantallas
-Fuente_principal = tkFont.Font(family="Lucida Bright", size=11)
-# Tipo de letra de la disponibilidad en los label
+from tkinter import ttk
+
 #Creamos una clase nodo, nuestro constructor
 class Node:
     def __init__(self, data: int) -> None:
@@ -158,7 +143,7 @@ class Tree():
         if self.root.level != 0:
             self.root.level = 0
         node = self.root 
-        s = [node] #Creamos una lista q tiene como objeto el nuestro nodo
+        s = [node] #Creamos una lista q tiene como objeto nuestro nodo
         while len(s) > 0: #mientras que el tamaño de nuestra lista sea mayor a 0
             node = s.pop(0) #quitamos de la lista el nodo en el que estamos
             if node.left is not None: #mientras que haya un nodo a la izquierda
@@ -272,49 +257,92 @@ class Tree():
             self.CurrentLevel(root.left , level-1) #Nos movemos en el árbol y vamos disminuyendo el nivel
             self.CurrentLevel(root.right , level-1) #a la vez, para que cuando sea 1 se imprima
 
+    def ReturnList(self):
+        """Hace un recorrido por nivel, añade los nodos a una lista y devuelve la lista"""
+        if self.root is None:
+            return None
+        node = self.root 
+        lista = [node]
+        s = [node] #Creamos una lista q tiene como objeto nuestro nodo
+        while len(s) > 0: #mientras que el tamaño de nuestra lista sea mayor a 0
+            node = s.pop(0) #quitamos de la lista el nodo en el que estamos
+            if node.left is not None: #mientras que haya un nodo a la izquierda
+                s.append(node.left)  #agregamos a la lista el nodo a la izquierda
+                lista.append(node.left)
+            if node.right is not None: #Se realiza el mismo proceso con el derecho
+                s.append(node.right)
+                lista.append(node.right)
+        return lista
+
 def main():
-    pass
+    # Clase de tkinter que nos permite mostrar árboles
+    GTree = ttk.Treeview(ventana, height=400)
+    # Definimos las columnas del árbol
+    GTree["columns"] = ("Data")
+    # Aplicamos el formato de las columnas
+    GTree.column("#0", width=120, minwidth=25)
+    GTree.column("Data", anchor=tk.CENTER, width=120, minwidth=100)
+    # Creamos los títulos de las columnas
+    GTree.heading("#0", text="Label", anchor=tk.W)
+    GTree.heading("Data", text="Data", anchor=tk.CENTER)
+    # Obtenemos la lista de todos los nodos por nivel
+    lista = tree.ReturnList()
+    id = 0
+    # Iteramos en todos sus elementos y los añadimos a la interfaz
+    if lista is not None:
+        for node in lista:
+            GTree.insert(parent="", index="end", iid=id, text="Parent", values=(node.data))
+            id += 1
+            if node.left is not None:
+                GTree.insert(parent=str(id-1), index="end", iid=id, text="Child", values=(node.left.data))
+                id += 1
+            if node.right is not None and node.left is not None:
+                GTree.insert(parent=str(id-2), index="end", iid=id, text="Child", values=(node.right.data))
+                id += 1
+            elif node.right is not None:
+                GTree.insert(parent=str(id-1), index="end", iid=id, text="Child", values=(node.right.data))
+                id += 1
+    GTree.pack(pady=20)
+    
+
 
 #Objeto de la clase tree
 tree = Tree()
-#Creamos manualamente nuestro árbol con el que probaremos insertar nodos
-tree.insert(10)
-tree.insert(20)
-tree.insert(30)
-tree.insert(40)
-tree.insert(50)
-tree.insert(25)
-tree.preorder(tree.root) 
-print()
-tree.LevelTraversal()
-'''
-nodo = tk.Label(ventana, text=tree.insert(10),
-                                 font=Fuente_principal, disabledforeground=None, bg="#FFFFFF")
-# Ubicación (x,y) del label
-nodo.place(x=470, y=50) 
-'''
-
-
-abuelo = tree.EncontrarAbuelo(tree.root, 10)
-tio = tree.EncontrarTio(50)
-#print(f"{abuelo} y {tio}")
-nodo = tree.BuscarNodo(tree.root, 40)
-#print(nodo)
-
-tree2 = Tree()
+# Lista con los datos a insertar
 nums = [9, 5, 10, 0, 6, 11, -1, 1, 2]
 for num in nums:
-    tree2.insert(num)
+    tree.insert(num)
 print()
-tree2.preorder(tree2.root)
-tree2.delete(10)
+tree.LevelTraversal()
+tree.delete(10)
 print()
-tree2.preorder(tree2.root)
-tio = tree.EncontrarTio(10)
-print(f"{abuelo} y {abuelo.right}")
-nodo = tree.BuscarNodo(tree.root, 60)
+tree.LevelTraversal()
+abuelo = tree.EncontrarAbuelo(tree.root, 5)
+tio = tree.EncontrarTio(5)
+print()
+print(f"abuelo del 5: {abuelo} y tío del 5: {tio}")
+nodo = tree.BuscarNodo(tree.root, 1)
 print(nodo)
+altura = tree.AlturaNodo(tree.root)
+print(f"Altura del árbol: {altura}")
 
-
-# El mainloop lleva el registro de todo lo que está sucediendo en la ventana:
-ventana.mainloop()
+if __name__ == "__main__":
+    """
+    NOTA: La interfaz gráfica solo muestra el árbol, todas las modificaciones
+    se deben hacer modificando el código
+    """
+    # PARA CREAR LA INTERFAZ GRÁFICA
+    # Creamos la ventana principal
+    ventana = tk.Tk()
+    # Tamaño de la ventana:
+    ventana.geometry("350x580+500+100")  # para el tamaño y centrado de la interfaz
+    # Título de la ventana principal
+    ventana.title("Punto 1, laboratorio #1")
+    # Esto sirve para que el usuario no pueda agrandar la pantalla, ya que
+    # de lo contrario, se distorciona la interfaz
+    ventana.resizable(width=0, height=0)
+    # Creamos un Tipo de letra para colocarselo a los botones en las pantallas
+    # Tipo de letra de la disponibilidad en los label
+    main()
+    # El mainloop lleva el registro de todo lo que está sucediendo en la ventana:
+    ventana.mainloop()
