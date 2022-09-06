@@ -34,7 +34,7 @@ public class Funciones {
     
     //para crear nuestro árbol y probarlo
     public void InsertarMain(int key) {
-        Btree r = root; //pa no perder la raíz
+        Btree r = root; //para no perder la raíz
         //por definición de árboles b, la cantidad de claves en un nodo es 2t-1, entonces
         //con esto verificamos si el árbol está lleno, a manera de validación
         if (r.Nclaves == ((2 * t) - 1)) {
@@ -42,7 +42,7 @@ public class Funciones {
             root = s; 
             s.leaf = false;  
             s.child[0] = r; //el primer hijo, corresponde a lo de la raíz  
-            s.Nclaves = 0; //cant de elements  0 
+            s.Nclaves = 0; //cant de elementos 0 
             DividirNodo(s, 0, r);  //por definición, si está lleno, se debe dividir el nodo, 
             //tendrá como parámetros los 2 nodos y mi pos
             InsertarNolleno(s, key);  //cuando ya se realice el proceso anterior, se procede a insertar de nuevo
@@ -60,7 +60,7 @@ public class Funciones {
             imprimir(node);
         }
     }
-    //cuando se llena el nodo y se debe insertar, se realiza lo sgt
+    //cuando se llena el nodo y se debe insertar, se realiza lo siguiente
     private void DividirNodo(Btree node, int i, Btree p) {  
         //si se divide tendremos 2 nodos x y y 
         Btree c = new Btree(t);  //creamos un nodo temporal con el mismo grado mínimo
@@ -81,12 +81,12 @@ public class Funciones {
         for (int j = node.Nclaves; j > i; j--) {
             node.child[(j + 1)] = node.child[j];
         }
-        //Por lo que a nuestro nodo le asignamos en la pos i + 1 le asignamos el node c                           
+        //Por lo que a nuestro nodo le asignamos en la pos i + 1 al node c                           
         node.child[(i + 1)] = c;                                                 
         for (int j = node.Nclaves; j > i; j--) {
             node.key[(j + 1)] = node.key[j]; //acomodamos las claves
         }
-        //agregamos el valor al node en la pos q necesitamos                                 
+        //agregamos el valor al node en la pos que necesitamos                                 
         node.key[i] = p.key[(t - 1)];                                             
         node.Nclaves++;                                                                  
     }

@@ -57,6 +57,7 @@ class Tree():
         
         #Calculamos el balance a cada uno de nuestros nodos.
         balance = self.Balance(root)
+        # Dependiendo del caso de desbalance, se realizan las rotaciones necesarias
         if ((balance < -1) and data < root.left.data):
             return self.RotacionIzquierda(root)
         if (balance > 1 and data > root.right.data):
@@ -72,9 +73,9 @@ class Tree():
 
     def delete(self, data: int):
         """Función para borrar un nodo"""
-        if self.BuscarNodo(self.root, data) is None:
+        if self.BuscarNodo(self.root, data) is None: # Si el nodo no existe, se muestra un mensaje
             print("Nodo no encontrado")
-        else:
+        else: # Si existe, se procede a borrar el nodo
             self.root = self._delete_(self.root, data)
 
     def _delete_(self, root: Node, data: int):
@@ -159,24 +160,25 @@ class Tree():
         if root is None: #si no hay nodo entonces el nivel es 0
             return 0
         node = root 
-        s = [node] #Creamos una lista q tiene como objeto el nuestro nodo
+        s = [node] #Creamos una lista que tiene como objeto nuestro nodo
         while len(s) > 0:  #mientras que la lista no esté vacía 
             node = s.pop(0) #sacamos el nodo de la lista
             if node.left is not None: #Si tiene hijo a la izquierda
                 s.append(node.left)  #ingresamos cada nodo
             if node.right is not None: #si tiene hijos a la derecha
                 s.append(node.right) #ingresamos cada nodo
-        return node.level #obtenemos el nivel del nodo
+        return node.level #obtenemos el nivel del último nodo encontrado
 
     def Balance(self, root: Node):
         """Función para obtener el balance de cada nodo""" 
         rheight = self.BuscarMax(root.right) #buscamos balance del hijo derecho
         lheight = self.BuscarMax(root.left)  #buscamos balance del hijo izquierdo
-        if (rheight != 0): 
+        if (rheight != 0): # Si tiene hijos nos va a devolver su nivel, así que hay que restar por el
+            #nivel de la raíz para que sea correcto
             rheight -= root.level
         if (lheight != 0):
             lheight -= root.level
-        return rheight - lheight
+        return rheight - lheight #Retornamos el balance del nodo (Altura der - Altura izq)
     
     def RotacionIzquierda(self, root: Node): 
         """Rotación simple izquierda"""
@@ -186,7 +188,7 @@ class Tree():
         self.CalculateLevel() #recalculamos el nivel de cada uno de los nodos
         return child 
 
-    def RotacionDerecha(self, root: Node): 
+    def RotacionDerecha(self, root: Node): # Igual que la izq pero intercambiando derecha e izquierda
         """Rotación simple derecha"""
         child = root.right
         root.right = child.left
@@ -310,6 +312,8 @@ def main():
 tree = Tree()
 # Lista con los datos a insertar
 nums = [9, 5, 10, 0, 6, 11, -1, 1, 2]
+# Realizamos todas las operaciones solicitadas en el laboratorio:
+# Insertar, borrar, recorrido recursivo por nivel, encontrar nodo, abuelo y tío, y hallar la altura de un nodo
 for num in nums:
     tree.insert(num)
 print()
@@ -341,8 +345,7 @@ if __name__ == "__main__":
     # Esto sirve para que el usuario no pueda agrandar la pantalla, ya que
     # de lo contrario, se distorciona la interfaz
     ventana.resizable(width=0, height=0)
-    # Creamos un Tipo de letra para colocarselo a los botones en las pantallas
-    # Tipo de letra de la disponibilidad en los label
+    #Llamamos la función que nos muestra los elementos
     main()
     # El mainloop lleva el registro de todo lo que está sucediendo en la ventana:
     ventana.mainloop()
