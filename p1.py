@@ -297,7 +297,7 @@ nodo.place(x=470, y=50)
 
 abuelo = tree.EncontrarAbuelo(tree.root, 10)
 tio = tree.EncontrarTio(50)
-#print(f"{abuelo} y {tio}")
+print(f"{abuelo} y {tio}")
 nodo = tree.BuscarNodo(tree.root, 40)
 #print(nodo)
 
